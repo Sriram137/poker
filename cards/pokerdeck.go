@@ -1,0 +1,33 @@
+package main
+
+import (
+	"math/rand"
+)
+
+type Deck struct {
+	cardDeck []string
+	iterator int
+}
+
+func (deck *Deck) makeShuffledCardPack() {
+	deck.iterator = -1
+	var niceDeck = make([]string, 52)
+	deck.cardDeck = make([]string, 52)
+
+	var count = 0
+	for _, num := range "123456789TJKQ" {
+		for _, s := range "DHSC" {
+			niceDeck[count] = string(num) + string(s)
+			count += 1
+		}
+	}
+	var randS = rand.Perm(51)
+	for i, j := range randS {
+		deck.cardDeck[i] = niceDeck[j]
+	}
+}
+
+func (deck *Deck) getPokerCard() string {
+	deck.iterator += 1
+	return deck.cardDeck[deck.iterator]
+}

@@ -37,7 +37,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// command line flags
-	makeShuffledCardPack()
+	makeNewBoard()
 	port := flag.Int("port", 9000, "port to serve on")
 	dir := flag.String("directory", "web/", "directory of web files")
 	flag.Parse()

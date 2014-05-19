@@ -2,15 +2,8 @@ package main
 
 import (
 	"github.com/gorilla/websocket"
+	"log"
 )
-
-type orderedSet struct {
-	items    []string
-	itemsMap map[string]int
-	posMap   map[string]int
-	connMap  map[string]*websocket.Conn
-	cardMap  map[string][]string
-}
 
 type Player struct {
 	next_player *Player
@@ -21,42 +14,71 @@ type Player struct {
 }
 
 type Board struct {
-	cardDeck []string
-	dealer   *Player
-	size     int
+	deck      Deck
+	dealer    *Player
+	starter   *Player
+	gameState string
+}
+
+func makeNewBoard() {
+	board = Board{Deck{}, nil, nil, "waiting"}
 }
 
 func (board *Board) addPlayer(player Player) {
 	if board.dealer == nil {
-		*board.dealer = player
+		board.dealer = &player
 		player.next_player = board.dealer
+		log.Println("start")
+		log.Println(board)
 		return
 	}
 	if board.dealer == board.dealer.next_player {
-		*board.dealer.next_player = player
+		board.dealer.next_player = &player
 		player.next_player = board.dealer
+		log.Println("second")
+		log.Println(board)
 		return
 	}
 	var start = board.dealer.next_player
 	for ; start.next_player != board.dealer; start = start.next_player {
 	}
-	*start.next_player = player
+	start.next_player = &player
 	player.next_player = board.dealer
+	log.Println("third")
+	log.Println(board)
 }
 
-func (o *orderedSet) addPlayer(name string, conn *websocket.Conn) {
-	if o.itemsMap[name] == 0 {
-		o.itemsMap[name] += 1
-		o.posMap[name] = len(o.items)
-		o.connMap[name] = conn
-		o.items = append(o.items, name)
+func (board *Board) length() int {
+	if board.dealer == nil {
+		return 0
 	}
+	if board.dealer == board.dealer.next_player {
+		return 1
+	}
+	var count = 0
+	for start := board.dealer.next_player; start != board.dealer; start = start.next_player {
+		count++
+	}
+	count++
+	return count
 }
 
-func (o *orderedSet) getPostion(name string) int {
-	return o.posMap[name]
-}
-
-func (o *orderedSet) length() int {
-	return len(o.items)
+func (board *Board) print() {
+	if board.dealer == nil {
+		log.Println("first_p")
+		log.Println(*board.dealer)
+		return
+	}
+	if board.dealer == board.dealer.next_player {
+		log.Println("second_p")
+		log.Println(*board.dealer)
+		log.Println(*board.dealer.next_player)
+		return
+	}
+	log.Println("thrid_p")
+	var start = board.dealer.next_player
+	for ; start != board.dealer; start = start.next_player {
+		log.Println(*start)
+	}
+	log.Println(*start)
 }

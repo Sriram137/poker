@@ -12,24 +12,22 @@ func sendPokerMessage(msg string, conn *websocket.Conn) {
 	}
 }
 
-func changeDealer() {
-	dealer = (dealer + 1) % currentPlayers.length()
-}
-
 func gameStart() {
-	changeDealer()
-	expectedPlayer = dealer
-	for name, con := range currentPlayers.connMap {
-		var card1 = getPokerCard()
-		var card2 = getPokerCard()
-		sendPokerMessage(card1, con)
-		sendPokerMessage(card2, con)
-		sendPokerMessage("Hello Nub "+name, con)
+	board.deck = Deck{}
+	board.deck.makeShuffledCardPack()
+	var i = board.dealer
+	for {
+		var card1 = board.deck.getPokerCard()
+		var card2 = board.deck.getPokerCard()
+		sendPokerMessage(card1, i.conn)
+		sendPokerMessage(card2, i.conn)
+		i.hand = []string{card1, card2}
+		sendPokerMessage("ciruclar Nub"+i.name, i.conn)
+		i = i.next_player
+		if i == board.dealer {
+			break
+		}
 	}
-	log.Println(cardDeck)
-	gameState = "preFlop"
-}
-
-func nextTurn() {
-	expectedPlayer = (expectedPlayer + 1) % currentPlayers.length()
+	log.Println(board.deck)
+	board.gameState = "preFlop"
 }

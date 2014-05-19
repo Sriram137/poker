@@ -10,6 +10,7 @@ import (
 type CommandMsg struct {
 	command string
 	name    string
+	value   int
 }
 
 func sendAll(msg []byte) {
@@ -19,7 +20,7 @@ func sendAll(msg []byte) {
 }
 
 func handlePokerMessage(msg []byte, conn *websocket.Conn) {
-	fmt.Println(gameState)
+	fmt.Println(board.gameState)
 	var commandMsg map[string]string
 	var err = json.Unmarshal(msg, &commandMsg)
 	if err == nil {
@@ -30,19 +31,22 @@ func handlePokerMessage(msg []byte, conn *websocket.Conn) {
 	switch commandMsg["command"] {
 	case "join":
 		log.Println("Some one joined")
-		if gameState == "waiting" {
+		if board.gameState == "waiting" {
 			board.addPlayer(Player{nil, false, conn, name, nil})
-			currentPlayers.addPlayer(name, conn)
-			if currentPlayers.length() > 2 {
-				gameState = "canStart"
+			if board.length() > 2 {
+				board.gameState = "canStart"
 				gameStart()
 			}
-			log.Println(commandMsg)
+		}
+	case "check":
+		if board.starter.name == commandMsg["name"] {
+			if board.gameState == "preflop" {
+
+			}
 		}
 	}
-	log.Println(currentPlayers)
-	log.Println(string(msg))
-	fmt.Println(gameState)
+	board.print()
+	fmt.Println(board.gameState)
 	fmt.Println()
 	// sendAll(msg)
 }
