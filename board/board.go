@@ -35,6 +35,21 @@ func (b *Board) String() string {
 func (P *Player) String() string {
 	return strings.Join([]string{"PLAYER", P.Name, strconv.Itoa(P.CurrentBet), strconv.Itoa(P.Money)}, " ")
 }
+func (P *Player) PlayerInfo() string{
+	var k string =""
+	if P.Folded==false {
+		k="not" 
+	}
+	var hand =P.HandInfo()
+	return strings.Join([]string{"You have",k, "folded.\nYour Hand :", hand, "\nCurrent Bet :", strconv.Itoa(P.CurrentBet), "\nMoney Left : ", strconv.Itoa(P.Money)},  " ")
+}
+
+func (P *Player) HandInfo() string {
+	if P.Hand == nil {
+		return "empty"
+	}
+	return strings.Join(P.Hand," ")
+}
 
 func MakeNewBoard() Board {
 	return Board{cards.Deck{}, nil, nil, nil, "waiting", make([]string, 0), 0, 0}

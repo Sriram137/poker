@@ -156,7 +156,19 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		} else {
 			sendPokerMessage("Out of turn", conn)
 		}
-	}
+	
+	case "me":
+		var player=pokerBoard.Dealer;
+		for {
+			if(player.Conn==conn){
+				log.Println("Player identified")
+				sendPokerMessage(player.PlayerInfo(),player.Conn)
+				break
+			}
+			player= player.Next_player
+		}
+			
+	}	
 	log.Println(pokerBoard.GameState)
 	log.Println()
 	// sendAll(msg)
