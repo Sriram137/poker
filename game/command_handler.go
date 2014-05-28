@@ -181,6 +181,19 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 	case "board":
 		log.Println("board")
 		sendPokerMessage(pokerBoard.PrintCards(),getRequestingPlayer(pokerBoard,conn).Conn)
+
+	case "who":
+		log.Println("who")
+		var player = getRequestingPlayer(pokerBoard,conn)
+		if pokerBoard.GameState == "waiting" {
+			sendPokerMessage("Patience My friend. Let the Game begin",player.Conn)
+		} else {
+			if player == pokerBoard.CurrentPlayer {
+				sendPokerMessage("Confused eh!!. Its YOUR turn",player.Conn)
+			} else {
+				sendPokerMessage(pokerBoard.CurrentPlayer.Name+ "'s turn",player.Conn)
+			}
+		}
 	}	
 	log.Println(pokerBoard.GameState)
 	log.Println()
