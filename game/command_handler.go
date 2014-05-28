@@ -108,6 +108,7 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 				}
 			}
 			sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
+			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+"'s Turn")
 		} else {
 			sendPokerMessage("Out of Turn", conn)
 		}
