@@ -1,26 +1,22 @@
-git clone in GOPATH.
-go build && ./poker to run the server.
+# Devlopment
+Clone so that directory structure looks like 
+> ~GOPATH/src/github.com/elricL/poker
 
-Install web socket handler using
+# Usage 
+Need a webscocket client library to connect to the server. 
 
-sudo npm install -g ws
+## Installation
 
+A websocket client library written in node can be installed using
 
-connect to the localhost server using wscat -c ws:localhost:9000/ws
+    npm install -g ws
 
-Test using 
+Connect using 
 
-{"command" : "join", "name" : "vivek"}
-{"command" : "join", "name" : "vivek2"}
-{"command" : "join", "name" : "vivek3"}
+    wscat -c ws:server_address:9000/ws
+  
+## Test
 
-{"command" : "check", "name" : "vivek"}
-{"command" : "check", "name" : "vivek2"}
-{"command" : "raise", "name" : "vivek3", "value":"100"}
-{"command" : "debug"}
-{"command" : "check", "name" : "vivek"}
-{"command" : "check", "name" : "vivek2"}
-
-{"command" : "check", "name" : "vivek2"}
-{"command" : "check", "name" : "vivek3"}
-{"command" : "check", "name" : "vivek"}
+    {"command" : "join", "name" : "vivek"}
+    {"command" : "join", "name" : "vivek2"}
+    {"command" : "join", "name" : "vivek3"}
