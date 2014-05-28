@@ -17,6 +17,7 @@ Connect using
   
 ## Test
 
-    {"command" : "join", "name" : "vivek"}
-    {"command" : "join", "name" : "vivek2"}
-    {"command" : "join", "name" : "vivek3"}
+    j <name> or join <name>
+    c or check
+    f or fold
+    r <amount> or raise <amount>
