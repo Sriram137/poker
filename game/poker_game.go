@@ -57,7 +57,6 @@ func goFlopStuff(pokerBoard *board.Board) {
 
 func goTurnStuff(pokerBoard *board.Board) {
 	var i = pokerBoard.Dealer
-	var burnT = pokerBoard.Deck.GetPokerCard()
 	var card4 = pokerBoard.Deck.GetPokerCard()
 	for {
 		sendPokerMessage(card4, i.Conn)
@@ -74,7 +73,6 @@ func goTurnStuff(pokerBoard *board.Board) {
 
 func goRiverStuff(pokerBoard *board.Board) {
 	var i = pokerBoard.Dealer
-	var burnT = pokerBoard.Deck.GetPokerCard()
 	var card5 = pokerBoard.Deck.GetPokerCard()
 	for {
 		sendPokerMessage(card5, i.Conn)

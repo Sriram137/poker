@@ -54,17 +54,17 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		log.Println("Check")
 		log.Println(pokerBoard)
 		log.Println(pokerBoard.CurrentPlayer)
-		if pokerBoard.CurrentPlayer.Name == commandMsg["name"] {
-			switch pokerBoard.GameState {
-			case "preFlop":
-				var moneyToCheck = (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
-				pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - moneyToCheck
-				pokerBoard.Pot += moneyToCheck
-				pokerBoard.CurrentPlayer.CurrentBet = pokerBoard.CurrentBet
-				pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.Next_player
-				log.Println("CALLS")
-				log.Println(moneyToCheck)
-				if pokerBoard.CurrentPlayer == pokerBoard.Starter {
+		if pokerBoard.CurrentPlayer.Conn == conn {
+			var moneyToCheck = (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
+			pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - moneyToCheck
+			pokerBoard.Pot += moneyToCheck
+			pokerBoard.CurrentPlayer.CurrentBet = pokerBoard.CurrentBet
+			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.Next_player
+			log.Println("CALLS")
+			log.Println(moneyToCheck)
+			if pokerBoard.CurrentPlayer == pokerBoard.Starter {
+				switch pokerBoard.GameState {
+				case "preFlop":
 					pokerBoard.GameState = "flop"
 					goFlopStuff(pokerBoard)
 				}
@@ -74,13 +74,15 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		log.Println("Raise")
 		log.Println(pokerBoard)
 		log.Println(pokerBoard.CurrentPlayer)
-		raiseAmount, _ := strconv.Atoi(commandMsg["value"])
-		pokerBoard.CurrentPlayer.CurrentBet = raiseAmount
-		var difference = (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
-		pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - difference
-		pokerBoard.Starter = pokerBoard.CurrentPlayer
-		pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.Next_player
-		pokerBoard.Pot += difference
+		if pokerBoard.CurrentPlayer.Conn == conn {
+			raiseAmount, _ := strconv.Atoi(commandMsg["value"])
+			pokerBoard.CurrentPlayer.CurrentBet = raiseAmount
+			difference := (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
+			pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - difference
+			pokerBoard.Starter = pokerBoard.CurrentPlayer
+			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.Next_player
+			pokerBoard.Pot += difference
+		}
 	}
 	fmt.Println(pokerBoard.GameState)
 	fmt.Println()
