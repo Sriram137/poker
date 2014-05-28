@@ -32,9 +32,11 @@ type Board struct {
 func (b *Board) String() string {
 	return strings.Join([]string{"BOARD", "Dealer", b.Dealer.Name, "Starter", b.Starter.Name, "Current", b.CurrentPlayer.Name, b.GameState, strconv.Itoa(b.CurrentBet), strconv.Itoa(b.Pot)}, " ")
 }
+
 func (P *Player) String() string {
 	return strings.Join([]string{"PLAYER", P.Name, strconv.Itoa(P.CurrentBet), strconv.Itoa(P.Money)}, " ")
 }
+
 func (P *Player) PlayerInfo() string{
 	var k string =""
 	if P.Folded==false {
@@ -49,6 +51,10 @@ func (P *Player) HandInfo() string {
 		return "empty"
 	}
 	return strings.Join(P.Hand," ")
+}
+
+func (b *Board) PrintCards() string {
+	return strings.Join(b.BoardCards," ") 
 }
 
 func MakeNewBoard() Board {
@@ -113,6 +119,7 @@ func (board *Board) Print() {
 	log.Println(*start)
 }
 
+
 func (pokerPlayer *Player) FindNextUnfoldedPlayer() *Player {
 	var i = pokerPlayer.Next_player
 	for {
@@ -123,3 +130,4 @@ func (pokerPlayer *Player) FindNextUnfoldedPlayer() *Player {
 		}
 	}
 }
+
