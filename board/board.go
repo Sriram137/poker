@@ -12,17 +12,21 @@ type Player struct {
 	Conn        *websocket.Conn
 	Name        string
 	Hand        []string
+	TotalMoney  int
+	CurrentBet  int
 }
 
 type Board struct {
-	Deck      cards.Deck
-	Dealer    *Player
-	Starter   *Player
-	GameState string
+	Deck          cards.Deck
+	Dealer        *Player
+	Starter       *Player
+	CurrentPlayer *Player
+	GameState     string
+	BoardCards    []string
 }
 
 func MakeNewBoard() Board {
-	return Board{cards.Deck{}, nil, nil, "waiting"}
+	return Board{cards.Deck{}, nil, nil, nil, "waiting", make([]string, 0)}
 }
 
 func (b *Board) Shuffle() {
@@ -35,14 +39,12 @@ func (board *Board) AddPlayer(player Player) {
 		board.Dealer = &player
 		player.Next_player = board.Dealer
 		log.Println("start")
-		log.Println(board)
 		return
 	}
 	if board.Dealer == board.Dealer.Next_player {
 		board.Dealer.Next_player = &player
 		player.Next_player = board.Dealer
 		log.Println("second")
-		log.Println(board)
 		return
 	}
 	var start = board.Dealer.Next_player
@@ -51,7 +53,6 @@ func (board *Board) AddPlayer(player Player) {
 	start.Next_player = &player
 	player.Next_player = board.Dealer
 	log.Println("third")
-	log.Println(board)
 }
 
 func (board *Board) Length() int {
@@ -72,13 +73,10 @@ func (board *Board) Length() int {
 func (board *Board) Print() {
 	if board.Dealer == nil {
 		log.Println("first_p")
-		log.Println(*board.Dealer)
 		return
 	}
 	if board.Dealer == board.Dealer.Next_player {
 		log.Println("second_p")
-		log.Println(*board.Dealer)
-		log.Println(*board.Dealer.Next_player)
 		return
 	}
 	log.Println("thrid_p")

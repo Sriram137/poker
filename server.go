@@ -33,10 +33,6 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			conn.Close()
 			return
 		}
-		fmt.Println("erererer")
-		fmt.Println(poker_board)
-		var xx = &poker_board
-		fmt.Println(xx)
 		game.HandlePokerMessage(msg, &poker_board, conn)
 	}
 }

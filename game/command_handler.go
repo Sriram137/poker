@@ -22,10 +22,12 @@ func sendAll(board board.Board, msg []byte) {
 }
 
 func sendPokerMessage(msg string, conn *websocket.Conn) {
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
+		log.Println("EERROEROERO WHile sending message")
+	}
 }
 
 func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Conn) {
-	fmt.Println(pokerBoard.GameState)
 	var commandMsg map[string]string
 	var err = json.Unmarshal(msg, &commandMsg)
 	if err != nil {
@@ -35,22 +37,32 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 	var name = commandMsg["name"]
 	switch commandMsg["command"] {
 	case "join":
-		log.Println("Some one joined")
 		if pokerBoard.GameState == "waiting" {
-			pokerBoard.AddPlayer(board.Player{nil, false, conn, name, nil})
+			pokerBoard.AddPlayer(board.Player{nil, false, conn, name, nil, 500, 0})
 			if pokerBoard.Length() > 2 {
 				pokerBoard.GameState = "canStart"
 				gameStart(pokerBoard)
+				log.Println(pokerBoard.Dealer.Name)
+				log.Println(pokerBoard.Starter.Name)
+				log.Println(pokerBoard.CurrentPlayer.Name)
 			}
 		}
 	case "check":
-		if pokerBoard.Starter.Name == commandMsg["name"] {
-			if pokerBoard.GameState == "preflop" {
-
+		log.Println(pokerBoard.Dealer.Name)
+		log.Println(pokerBoard.Starter.Name)
+		log.Println(pokerBoard.CurrentPlayer.Name)
+		log.Println(commandMsg["name"])
+		if pokerBoard.CurrentPlayer.Name == commandMsg["name"] {
+			switch pokerBoard.GameState {
+			case "preFlop":
+				pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.Next_player
+				if pokerBoard.CurrentPlayer == pokerBoard.Starter {
+					pokerBoard.GameState = "flop"
+					goFlopStuff(pokerBoard)
+				}
 			}
 		}
 	}
-	pokerBoard.Print()
 	fmt.Println(pokerBoard.GameState)
 	fmt.Println()
 	// sendAll(msg)

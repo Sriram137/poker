@@ -2,24 +2,46 @@ package game
 
 import (
 	"github.com/elricL/poker/board"
-	"log"
+	"strconv"
 )
 
-func gameStart(board *board.Board) {
-	board.Shuffle()
-	var i = board.Dealer
+func gameStart(pokerBoard *board.Board) {
+	pokerBoard.Shuffle()
+	var i = pokerBoard.Dealer
+	var count = 0
 	for {
-		var card1 = board.Deck.GetPokerCard()
-		var card2 = board.Deck.GetPokerCard()
+		var card1 = pokerBoard.Deck.GetPokerCard()
+		var card2 = pokerBoard.Deck.GetPokerCard()
 		sendPokerMessage(card1, i.Conn)
 		sendPokerMessage(card2, i.Conn)
+		sendPokerMessage(strconv.Itoa(count), i.Conn)
 		i.Hand = []string{card1, card2}
 		sendPokerMessage("ciruclar Nub"+i.Name, i.Conn)
 		i = i.Next_player
-		if i == board.Dealer {
+		count++
+		if i == pokerBoard.Dealer {
 			break
 		}
 	}
-	log.Println(board.Deck)
-	board.GameState = "preFlop"
+	pokerBoard.GameState = "preFlop"
+	pokerBoard.Starter = pokerBoard.Dealer.Next_player.Next_player.Next_player
+	pokerBoard.CurrentPlayer = pokerBoard.Starter
+}
+
+func goFlopStuff(pokerBoard *board.Board) {
+	var i = pokerBoard.Dealer
+	var card1 = pokerBoard.Deck.GetPokerCard()
+	var card2 = pokerBoard.Deck.GetPokerCard()
+	var card3 = pokerBoard.Deck.GetPokerCard()
+	for {
+		sendPokerMessage(card1, i.Conn)
+		sendPokerMessage(card2, i.Conn)
+		sendPokerMessage(card3, i.Conn)
+		i = i.Next_player
+		if i == pokerBoard.Dealer {
+			break
+		}
+	}
+	pokerBoard.GameState = "afterFlop"
+	pokerBoard.Starter = pokerBoard.Dealer.Next_player
 }
