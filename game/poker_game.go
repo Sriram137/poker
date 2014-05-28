@@ -51,7 +51,8 @@ func goFlopStuff(pokerBoard *board.Board) {
 	}
 	pokerBoard.CurrentBet = 0
 	pokerBoard.GameState = "afterFlop"
-	pokerBoard.Starter = pokerBoard.Dealer.Next_player
+	pokerBoard.Starter = pokerBoard.Dealer.FindNextUnfoldedPlayer()
+	pokerBoard.CurrentPlayer = pokerBoard.Dealer.FindNextUnfoldedPlayer()
 }
 
 func goTurnStuff(pokerBoard *board.Board) {
@@ -67,7 +68,8 @@ func goTurnStuff(pokerBoard *board.Board) {
 	}
 	pokerBoard.CurrentBet = 0
 	pokerBoard.GameState = "afterTurn"
-	pokerBoard.Starter = pokerBoard.Dealer.Next_player
+	pokerBoard.Starter = pokerBoard.Dealer.FindNextUnfoldedPlayer()
+	pokerBoard.CurrentPlayer = pokerBoard.Dealer.FindNextUnfoldedPlayer()
 }
 
 func goRiverStuff(pokerBoard *board.Board) {
@@ -83,7 +85,8 @@ func goRiverStuff(pokerBoard *board.Board) {
 	}
 	pokerBoard.CurrentBet = 0
 	pokerBoard.GameState = "afterRiver"
-	pokerBoard.Starter = pokerBoard.Dealer.Next_player
+	pokerBoard.Starter = pokerBoard.Dealer.FindNextUnfoldedPlayer()
+	pokerBoard.CurrentPlayer = pokerBoard.Dealer.FindNextUnfoldedPlayer()
 }
 
 func findNextUnfoldedPlayer(pokerPlayer *board.Player) *board.Player {

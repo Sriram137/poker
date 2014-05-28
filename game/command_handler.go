@@ -1,19 +1,12 @@
 package game
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/elricL/poker/board"
 	"github.com/gorilla/websocket"
 	"log"
 	"strconv"
+	"strings"
 )
-
-type CommandMsg struct {
-	command string
-	name    string
-	value   int
-}
 
 func sendAll(pokerBoard *board.Board, msg string) {
 	var start = pokerBoard.Dealer
@@ -32,28 +25,47 @@ func sendPokerMessage(msg string, conn *websocket.Conn) {
 	}
 }
 
-func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Conn) {
-	var commandMsg map[string]string
-	var err = json.Unmarshal(msg, &commandMsg)
-	if err != nil {
-		fmt.Println(err)
+func getCommand(stringMsg string) (string, string) {
+	splits := strings.Split(stringMsg, " ")
+	command := ""
+	value := ""
+	switch len(splits) {
+	case 1:
+		command = splits[0]
+	case 2:
+		command = splits[0]
+		value = splits[1]
 	}
-	fmt.Println(commandMsg)
-	var name = commandMsg["name"]
-	switch commandMsg["command"] {
+	switch command {
+	case "j":
+		command = "join"
+	case "f":
+		command = "fold"
+	case "c":
+		command = "check"
+	case "r":
+		command = "raise"
+	}
+	return command, value
+}
+
+func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Conn) {
+	var stringMsg = string(msg)
+	command, command_value := getCommand(stringMsg)
+	switch command {
 	case "debug":
 		log.Println(pokerBoard)
 		pokerBoard.Print()
 	case "join":
 		if pokerBoard.GameState == "waiting" {
-			pokerBoard.AddPlayer(board.Player{nil, false, conn, name, nil, 0, 500})
+			pokerBoard.AddPlayer(board.Player{nil, false, conn, command_value, nil, 0, 500})
 			if pokerBoard.Length() > 2 {
 				pokerBoard.GameState = "canStart"
 				sendAll(pokerBoard, "Starting game with "+strconv.Itoa(pokerBoard.Length())+" players")
 				gameStart(pokerBoard)
 				sendPokerMessage("Your Turn", pokerBoard.Starter.Conn)
 			} else {
-				sendAll(pokerBoard, name+" Joined")
+				sendAll(pokerBoard, command_value+" Joined")
 				sendAll(pokerBoard, "Waiting for "+strconv.Itoa(3-pokerBoard.Length())+" more players")
 			}
 		} else {
@@ -65,14 +77,16 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		log.Println("Check")
 		log.Println(pokerBoard)
 		log.Println(pokerBoard.CurrentPlayer)
+		log.Println(pokerBoard.CurrentPlayer.Next_player)
+		log.Println(pokerBoard.CurrentPlayer.Next_player.Next_player)
 		if pokerBoard.CurrentPlayer.Conn == conn {
 			var moneyToCheck = (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
 			pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - moneyToCheck
 			pokerBoard.Pot += moneyToCheck
 			pokerBoard.CurrentPlayer.CurrentBet = pokerBoard.CurrentBet
-			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
 			bet := strconv.Itoa(pokerBoard.CurrentBet)
-			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" puts in "+strconv.Itoa(moneyToCheck)+" Calls "+bet)
+			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" puts in "+strconv.Itoa(moneyToCheck)+" calls "+bet)
+			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
 			if pokerBoard.CurrentPlayer == pokerBoard.Starter {
 				switch pokerBoard.GameState {
 				case "preFlop":
@@ -84,7 +98,7 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 					pokerBoard.GameState = "afterTurn"
 					goTurnStuff(pokerBoard)
 				case "afterTurn":
-					sendAll(pokerBoard, "Commencing TURN")
+					sendAll(pokerBoard, "Commencing RIVER")
 					pokerBoard.GameState = "afterRiver"
 					goRiverStuff(pokerBoard)
 				case "afterRiver":
@@ -93,21 +107,36 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 					findGameWinner(pokerBoard)
 				}
 			}
+			sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
+		} else {
+			sendPokerMessage("Out of Turn", conn)
 		}
+		log.Println(pokerBoard.CurrentPlayer)
+		log.Println(pokerBoard.CurrentPlayer.Next_player)
+		log.Println(pokerBoard.CurrentPlayer.Next_player.Next_player)
 	case "raise":
 		log.Println("Raise")
 		log.Println(pokerBoard)
 		log.Println(pokerBoard.CurrentPlayer)
+		log.Println(pokerBoard.CurrentPlayer.Next_player)
+		log.Println(pokerBoard.CurrentPlayer.Next_player.Next_player)
 		if pokerBoard.CurrentPlayer.Conn == conn {
-			raiseAmount, _ := strconv.Atoi(commandMsg["value"])
+			raiseAmount, _ := strconv.Atoi(command_value)
+			difference := (raiseAmount - pokerBoard.CurrentPlayer.CurrentBet)
 			pokerBoard.CurrentPlayer.CurrentBet = raiseAmount
-			difference := (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
-			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" puts in "+strconv.Itoa(raiseAmount)+" Calls "+strconv.Itoa(pokerBoard.CurrentBet))
+			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" puts in "+strconv.Itoa(difference)+" raises to "+strconv.Itoa(raiseAmount))
 			pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - difference
 			pokerBoard.Starter = pokerBoard.CurrentPlayer
-			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
+			pokerBoard.CurrentBet = raiseAmount
 			pokerBoard.Pot += difference
+			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
+			sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
+		} else {
+			sendPokerMessage("Out of turn", conn)
 		}
+		log.Println(pokerBoard.CurrentPlayer)
+		log.Println(pokerBoard.CurrentPlayer.Next_player)
+		log.Println(pokerBoard.CurrentPlayer.Next_player.Next_player)
 	case "fold":
 		log.Println("Fold")
 		log.Println(pokerBoard)
@@ -117,13 +146,17 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" Folded.")
 			nextPlayer := pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
 			if nextPlayer.FindNextUnfoldedPlayer() == nextPlayer {
+				log.Println("Winner Winner Chicken Dinner")
 				findGameWinner(pokerBoard)
 			} else {
 				pokerBoard.CurrentPlayer = nextPlayer
+				sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
 			}
+		} else {
+			sendPokerMessage("Out of turn", conn)
 		}
 	}
-	fmt.Println(pokerBoard.GameState)
-	fmt.Println()
+	log.Println(pokerBoard.GameState)
+	log.Println()
 	// sendAll(msg)
 }

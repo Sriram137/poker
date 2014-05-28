@@ -30,10 +30,10 @@ type Board struct {
 }
 
 func (b *Board) String() string {
-	return strings.Join([]string{"Dealer", b.Dealer.Name, "Starter", b.Starter.Name, "Current", b.CurrentPlayer.Name, b.GameState, strconv.Itoa(b.CurrentBet), strconv.Itoa(b.Pot)}, " ")
+	return strings.Join([]string{"BOARD", "Dealer", b.Dealer.Name, "Starter", b.Starter.Name, "Current", b.CurrentPlayer.Name, b.GameState, strconv.Itoa(b.CurrentBet), strconv.Itoa(b.Pot)}, " ")
 }
 func (P *Player) String() string {
-	return strings.Join([]string{P.Name, strconv.Itoa(P.CurrentBet), strconv.Itoa(P.Money)}, " ")
+	return strings.Join([]string{"PLAYER", P.Name, strconv.Itoa(P.CurrentBet), strconv.Itoa(P.Money)}, " ")
 }
 
 func MakeNewBoard() Board {
