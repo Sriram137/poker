@@ -194,7 +194,26 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 				sendPokerMessage(pokerBoard.CurrentPlayer.Name+ "'s turn",player.Conn)
 			}
 		}
+	case "players":
+		//TODO EdgeCases need to be checked ,Sriram
+		log.Println("players")
+		var player= getRequestingPlayer(pokerBoard,conn)
+		if pokerBoard.GameState == "waiting"{
+			sendPokerMessage("Patience My friend. Let the Game begin",player.Conn)
+			return
+		}
+		var currPlayer=pokerBoard.CurrentPlayer
+		sendPokerMessage("Current Player is "+currPlayer.Name+ " with bet "+strconv.Itoa(currPlayer.CurrentBet),player.Conn)
+		for {
+			currPlayer=currPlayer.FindNextUnfoldedPlayer()
+			if currPlayer == pokerBoard.CurrentPlayer {
+				break;
+			}
+			sendPokerMessage("Next Player is "+currPlayer.Name+ " with bet "+strconv.Itoa(currPlayer.CurrentBet),player.Conn)
+		}
+
 	}	
+
 	log.Println(pokerBoard.GameState)
 	log.Println()
 	// sendAll(msg)
