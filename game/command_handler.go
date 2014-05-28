@@ -19,11 +19,24 @@ func sendAll(pokerBoard *board.Board, msg string) {
 	}
 }
 
+func getRequestingPlayer(pokerBoard *board.Board, conn *websocket.Conn) *board.Player{
+		var player=pokerBoard.Dealer;
+		for {
+			if(player.Conn==conn){
+				log.Println("identified "+player.Name)
+				return player
+			}
+			player= player.Next_player
+		}
+}
+
 func sendPokerMessage(msg string, conn *websocket.Conn) {
 	if err := conn.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
 		log.Println("EERROEROERO WHile sending message")
 	}
 }
+
+
 
 func getCommand(stringMsg string) (string, string) {
 	splits := strings.Split(stringMsg, " ")
@@ -57,6 +70,9 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		log.Println(pokerBoard)
 		pokerBoard.Print()
 	case "join":
+		if pokerBoard.Length () == 0 {
+			pokerBoard.BoardCards = [] string{"__","__","__","__","__"}
+		}
 		if pokerBoard.GameState == "waiting" {
 			pokerBoard.AddPlayer(board.Player{nil, false, conn, command_value, nil, 0, 500})
 			if pokerBoard.Length() > 2 {
@@ -158,16 +174,13 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		}
 	
 	case "me":
-		var player=pokerBoard.Dealer;
-		for {
-			if(player.Conn==conn){
-				log.Println("Player identified")
-				sendPokerMessage(player.PlayerInfo(),player.Conn)
-				break
-			}
-			player= player.Next_player
-		}
+		log.Println("me")
+		var player = getRequestingPlayer(pokerBoard,conn)
+		sendPokerMessage(player.PlayerInfo(),player.Conn)
 			
+	case "board":
+		log.Println("board")
+		sendPokerMessage(pokerBoard.PrintCards(),getRequestingPlayer(pokerBoard,conn).Conn)
 	}	
 	log.Println(pokerBoard.GameState)
 	log.Println()
