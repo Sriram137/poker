@@ -45,3 +45,34 @@ func goFlopStuff(pokerBoard *board.Board) {
 	pokerBoard.GameState = "afterFlop"
 	pokerBoard.Starter = pokerBoard.Dealer.Next_player
 }
+
+func goTurnStuff(pokerBoard *board.Board){
+	var i = pokerBoard.Dealer
+	var burnT = pokerBoard.Deck.GetPokerCard()
+	var card4 = pokerBoard.Deck.GetPokerCard()
+	for {
+		sendPokerMessage(card4,i.Conn)
+		i = i.Next_player
+		if i == pokerBoard.Dealer {
+			break
+		}
+	}
+	pokerBoard.GameState = "afterTurn"
+	pokerBoard.Starter = pokerBoard.Dealer.Next_player
+}
+
+func goRiverStuff(pokerBoard *board.Board){
+        var i = pokerBoard.Dealer
+        var burnT = pokerBoard.Deck.GetPokerCard()
+        var card5 = pokerBoard.Deck.GetPokerCard()
+        for {
+                sendPokerMessage(card5,i.Conn)
+                i = i.Next_player
+                if i == pokerBoard.Dealer {
+                        break
+                }
+        }
+        pokerBoard.GameState = "afterRiver"
+        pokerBoard.Starter = pokerBoard.Dealer.Next_player
+}
+
