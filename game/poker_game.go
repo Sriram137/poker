@@ -14,9 +14,8 @@ func gameStart(pokerBoard *board.Board) {
 		var card2 = pokerBoard.Deck.GetPokerCard()
 		sendPokerMessage(card1, i.Conn)
 		sendPokerMessage(card2, i.Conn)
-		sendPokerMessage(strconv.Itoa(count), i.Conn)
+		sendPokerMessage("Your postition "+strconv.Itoa(count), i.Conn)
 		i.Hand = []string{card1, card2}
-		sendPokerMessage("ciruclar Nub"+i.Name, i.Conn)
 		i = i.Next_player
 		count++
 		if i == pokerBoard.Dealer {
@@ -85,4 +84,19 @@ func goRiverStuff(pokerBoard *board.Board) {
 	pokerBoard.CurrentBet = 0
 	pokerBoard.GameState = "afterRiver"
 	pokerBoard.Starter = pokerBoard.Dealer.Next_player
+}
+
+func findNextUnfoldedPlayer(pokerPlayer *board.Player) *board.Player {
+	var i = pokerPlayer.Next_player
+	for {
+		if i.Folded {
+			i = i.Next_player
+		} else {
+			return i
+		}
+	}
+}
+
+func findGameWinner(pokerBoard *board.Board) {
+
 }

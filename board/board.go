@@ -97,3 +97,14 @@ func (board *Board) Print() {
 	}
 	log.Println(*start)
 }
+
+func (pokerPlayer *Player) FindNextUnfoldedPlayer() *Player {
+	var i = pokerPlayer.Next_player
+	for {
+		if i.Folded {
+			i = i.Next_player
+		} else {
+			return i
+		}
+	}
+}
