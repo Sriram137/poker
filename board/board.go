@@ -4,6 +4,8 @@ import (
 	"github.com/elricL/poker/cards"
 	"github.com/gorilla/websocket"
 	"log"
+	"strconv"
+	"strings"
 )
 
 type Player struct {
@@ -12,8 +14,8 @@ type Player struct {
 	Conn        *websocket.Conn
 	Name        string
 	Hand        []string
-	TotalMoney  int
 	CurrentBet  int
+	Money       int
 }
 
 type Board struct {
@@ -23,10 +25,19 @@ type Board struct {
 	CurrentPlayer *Player
 	GameState     string
 	BoardCards    []string
+	CurrentBet    int
+	Pot           int
+}
+
+func (b *Board) String() string {
+	return strings.Join([]string{"Dealer", b.Dealer.Name, "Starter", b.Starter.Name, "Current", b.CurrentPlayer.Name, b.GameState, strconv.Itoa(b.CurrentBet), strconv.Itoa(b.Pot)}, " ")
+}
+func (P *Player) String() string {
+	return strings.Join([]string{P.Name, strconv.Itoa(P.CurrentBet), strconv.Itoa(P.Money)}, " ")
 }
 
 func MakeNewBoard() Board {
-	return Board{cards.Deck{}, nil, nil, nil, "waiting", make([]string, 0)}
+	return Board{cards.Deck{}, nil, nil, nil, "waiting", make([]string, 0), 0, 0}
 }
 
 func (b *Board) Shuffle() {

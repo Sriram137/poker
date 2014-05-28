@@ -24,8 +24,15 @@ func gameStart(pokerBoard *board.Board) {
 		}
 	}
 	pokerBoard.GameState = "preFlop"
+	pokerBoard.Dealer.Next_player.CurrentBet = 10
+	pokerBoard.Dealer.Next_player.Money -= 10
+	pokerBoard.Dealer.Next_player.Next_player.CurrentBet = 20
+	pokerBoard.Dealer.Next_player.Next_player.Money -= 20
+	pokerBoard.CurrentBet = 20
+	pokerBoard.Pot = 30
 	pokerBoard.Starter = pokerBoard.Dealer.Next_player.Next_player.Next_player
 	pokerBoard.CurrentPlayer = pokerBoard.Starter
+
 }
 
 func goFlopStuff(pokerBoard *board.Board) {
@@ -38,10 +45,12 @@ func goFlopStuff(pokerBoard *board.Board) {
 		sendPokerMessage(card2, i.Conn)
 		sendPokerMessage(card3, i.Conn)
 		i = i.Next_player
+		i.CurrentBet = 0
 		if i == pokerBoard.Dealer {
 			break
 		}
 	}
+	pokerBoard.CurrentBet = 0
 	pokerBoard.GameState = "afterFlop"
 	pokerBoard.Starter = pokerBoard.Dealer.Next_player
 }

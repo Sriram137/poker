@@ -6,6 +6,7 @@ import (
 	"github.com/elricL/poker/board"
 	"github.com/gorilla/websocket"
 	"log"
+	"strconv"
 )
 
 type CommandMsg struct {
@@ -36,32 +37,50 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 	fmt.Println(commandMsg)
 	var name = commandMsg["name"]
 	switch commandMsg["command"] {
+	case "debug":
+		log.Println(pokerBoard)
+		pokerBoard.Print()
 	case "join":
 		if pokerBoard.GameState == "waiting" {
-			pokerBoard.AddPlayer(board.Player{nil, false, conn, name, nil, 500, 0})
+			pokerBoard.AddPlayer(board.Player{nil, false, conn, name, nil, 0, 500})
 			if pokerBoard.Length() > 2 {
 				pokerBoard.GameState = "canStart"
 				gameStart(pokerBoard)
-				log.Println(pokerBoard.Dealer.Name)
-				log.Println(pokerBoard.Starter.Name)
-				log.Println(pokerBoard.CurrentPlayer.Name)
+				log.Println("#########")
+				log.Println(pokerBoard)
 			}
 		}
 	case "check":
-		log.Println(pokerBoard.Dealer.Name)
-		log.Println(pokerBoard.Starter.Name)
-		log.Println(pokerBoard.CurrentPlayer.Name)
-		log.Println(commandMsg["name"])
+		log.Println("Check")
+		log.Println(pokerBoard)
+		log.Println(pokerBoard.CurrentPlayer)
 		if pokerBoard.CurrentPlayer.Name == commandMsg["name"] {
 			switch pokerBoard.GameState {
 			case "preFlop":
+				var moneyToCheck = (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
+				pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - moneyToCheck
+				pokerBoard.Pot += moneyToCheck
+				pokerBoard.CurrentPlayer.CurrentBet = pokerBoard.CurrentBet
 				pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.Next_player
+				log.Println("CALLS")
+				log.Println(moneyToCheck)
 				if pokerBoard.CurrentPlayer == pokerBoard.Starter {
 					pokerBoard.GameState = "flop"
 					goFlopStuff(pokerBoard)
 				}
 			}
 		}
+	case "raise":
+		log.Println("Raise")
+		log.Println(pokerBoard)
+		log.Println(pokerBoard.CurrentPlayer)
+		raiseAmount, _ := strconv.Atoi(commandMsg["value"])
+		pokerBoard.CurrentPlayer.CurrentBet = raiseAmount
+		var difference = (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
+		pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - difference
+		pokerBoard.Starter = pokerBoard.CurrentPlayer
+		pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.Next_player
+		pokerBoard.Pot += difference
 	}
 	fmt.Println(pokerBoard.GameState)
 	fmt.Println()
