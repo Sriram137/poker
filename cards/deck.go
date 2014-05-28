@@ -2,6 +2,7 @@ package cards
 
 import (
 	"math/rand"
+	"time"
 )
 
 type Deck struct {
@@ -21,6 +22,7 @@ func (deck *Deck) MakeShuffledCardPack() {
 			count += 1
 		}
 	}
+	rand.Seed(time.Now().Unix())
 	var randS = rand.Perm(51)
 	for i, j := range randS {
 		deck.cardDeck[i] = niceDeck[j]
