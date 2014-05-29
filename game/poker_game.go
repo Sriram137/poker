@@ -2,6 +2,7 @@ package game
 
 import (
 	"github.com/elricL/poker/board"
+	"log"
 	"strconv"
 )
 
@@ -105,18 +106,25 @@ func findNextUnfoldedPlayer(pokerPlayer *board.Player) *board.Player {
 	}
 }
 
-func findGameWinner(pokerBoard *board.Board) (winners []*board.Player, amount int) {
-	winners = make([]*board.Player, 1)
+func findGameWinner(pokerBoard *board.Board) ([]*board.Player, int) {
+	winners := make([]*board.Player, 0)
 	starter := pokerBoard.Starter
 	if starter.FindNextUnfoldedPlayer() == starter {
 		starter.Money += pokerBoard.Pot
-		return append(winners, starter), (pokerBoard.Pot / len(winners))
+		log.Println("WTF")
+		log.Println(starter)
+		log.Println(starter.FindNextUnfoldedPlayer())
+		winners := append(winners, starter)
+		amount := pokerBoard.Pot / len(winners)
+		log.Println(winners)
+		log.Println(amount)
+		return winners, amount
 	}
 
-	pokerBoard.Pot = 0
-	return
+	return winners, pokerBoard.Pot
 }
 
 func resetGame(pokerBoard *board.Board) {
 	pokerBoard.Deck.MakeShuffledCardPack()
+	gameStart(pokerBoard)
 }

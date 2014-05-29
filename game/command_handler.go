@@ -187,7 +187,6 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			if nextPlayer.FindNextUnfoldedPlayer() == nextPlayer {
 				log.Println("Winner Winner Chicken Dinner")
 				finishGame(pokerBoard)
-
 			} else {
 				pokerBoard.CurrentPlayer = nextPlayer
 				sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
