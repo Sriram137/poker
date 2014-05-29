@@ -7,6 +7,7 @@ import (
 
 func gameStart(pokerBoard *board.Board) {
 	pokerBoard.Shuffle()
+	pokerBoard.Dealer = pokerBoard.Dealer.Next_player
 	var i = pokerBoard.Dealer
 	var count = 0
 	for {
@@ -17,6 +18,7 @@ func gameStart(pokerBoard *board.Board) {
 		sendPokerMessage("Your postition "+strconv.Itoa(count), i.Conn)
 		i.Hand = []string{card1, card2}
 		i = i.Next_player
+		i.Folded = false
 		count++
 		if i == pokerBoard.Dealer {
 			break
@@ -107,10 +109,14 @@ func findGameWinner(pokerBoard *board.Board) (winners []*board.Player, amount in
 	winners = make([]*board.Player, 1)
 	starter := pokerBoard.Starter
 	if starter.FindNextUnfoldedPlayer() == starter {
-		starter.Money += board.Pot
-		return append(winners, starter), (board.Pot / len(winners))
+		starter.Money += pokerBoard.Pot
+		return append(winners, starter), (pokerBoard.Pot / len(winners))
 	}
 
-	board.Pot = 0
+	pokerBoard.Pot = 0
 	return
+}
+
+func resetGame(pokerBoard *board.Board) {
+	pokerBoard.Deck.MakeShuffledCardPack()
 }

@@ -63,6 +63,19 @@ func getCommand(stringMsg string) (string, string) {
 	return command, value
 }
 
+func finishGame(pokerBoard *board.Board) {
+	winners, amount := findGameWinner(pokerBoard)
+	if len(winners) == 1 {
+		sendAll(pokerBoard, strings.Join([]string{winners[0].Name, " wins the pot of ", strconv.Itoa(amount)}, " "))
+	} else {
+		sendAll(pokerBoard, strings.Join([]string{"Pot is split between", strconv.Itoa(len(winners)), "players"}, " "))
+		for _, winner := range winners {
+			sendAll(pokerBoard, strings.Join([]string{winner.Name, "wins", strconv.Itoa(amount)}, " "))
+		}
+	}
+	resetGame(pokerBoard)
+}
+
 func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Conn) {
 	var stringMsg = string(msg)
 	command, command_value := getCommand(stringMsg)
@@ -90,7 +103,8 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 				sendAll(pokerBoard, "Waiting for "+strconv.Itoa(3-pokerBoard.Length())+" more players")
 			}
 		} else {
-			sendPokerMessage("PLEASE WAIT", conn)
+			pokerBoard.AddPlayer(board.Player{nil, true, conn, command_value, nil, 0, 500})
+			sendPokerMessage("Please wait till the current game is over", conn)
 			sendPokerMessage("Chandra is noob", conn)
 		}
 
@@ -125,7 +139,7 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 				case "afterRiver":
 					sendAll(pokerBoard, "Game Over")
 					pokerBoard.GameState = "gameOver"
-					findGameWinner(pokerBoard)
+					finishGame(pokerBoard)
 				}
 			}
 			sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
@@ -172,7 +186,8 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			nextPlayer := pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
 			if nextPlayer.FindNextUnfoldedPlayer() == nextPlayer {
 				log.Println("Winner Winner Chicken Dinner")
-				findGameWinner(pokerBoard)
+				finishGame(pokerBoard)
+
 			} else {
 				pokerBoard.CurrentPlayer = nextPlayer
 				sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
