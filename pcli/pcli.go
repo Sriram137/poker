@@ -61,7 +61,7 @@ event_loop:
 
 func readCmds(ch chan string) {
 	for {
-		cmd, err := readline.String("> ")
+		cmd, err := readline.String("\033[2K\033[0G> ")
 		if err == io.EOF {
 			close(ch)
 			break
