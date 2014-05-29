@@ -24,7 +24,9 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Succesfully upgraded connection")
 	connections[conn] = true
-
+	if err := conn.WriteMessage(websocket.TextMessage, []byte("Go to https://github.com/elricL/poker/blob/master/README.md for usage instructions")); err != nil {
+		log.Println("EERROEROERO WHile sending message")
+	}
 	for {
 		// Blocks until a message is read
 		_, msg, err := conn.ReadMessage()
