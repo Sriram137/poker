@@ -132,6 +132,10 @@ func goNextState(pokerBoard *board.Board) {
 func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Conn) {
 	var stringMsg = string(msg)
 	command, command_value := getCommand(stringMsg)
+	if command != "join" && pokerBoard.GameState == "waiting" {
+		sendPokerMessage("Game yet to commence",conn)
+		return
+	}
 	switch command {
 	case "debug":
 		log.Println(pokerBoard)
