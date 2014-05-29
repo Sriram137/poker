@@ -47,7 +47,7 @@ func getPlayerPositionsInPrintableFormat(pokerBoard *board.Board) string {
 		if currPlayer.Folded == true {
 			playerPosString = playerPosString + "(f) "
 		}
-		playerPosString = playerPosString + "bet:" + strconv.Itoa(currPlayer.CurrentBet) + " money :" + strconv.Itoa(currPlayer.Money) + " "
+		playerPosString = playerPosString + "bet:" + strconv.Itoa(currPlayer.CurrentBet) + "money :" + strconv.Itoa(currPlayer.Money) + " "
 		if currPlayer.Next_player != pokerBoard.CurrentPlayer {
 			playerPosString = playerPosString + "-> "
 		}
@@ -93,7 +93,7 @@ func getCommand(stringMsg string) (string, string) {
 func finishGame(pokerBoard *board.Board) {
 	winners, amount := findGameWinner(pokerBoard)
 	if len(winners) == 1 {
-		sendAll(pokerBoard, strings.Join([]string{winners[0].Name, " wins the pot of ", strconv.Itoa(amount)}, " "))
+		sendAll(pokerBoard, strings.Join([]string{winners[0].Name, "wins the pot of", strconv.Itoa(amount)}, " "))
 	} else {
 		sendAll(pokerBoard, strings.Join([]string{"Pot is split between", strconv.Itoa(len(winners)), "players"}, " "))
 		for _, winner := range winners {
@@ -145,6 +145,10 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!", conn)
 			return
 		}
+		if command_value == "" {
+			sendPokerMessage("Enter a name", conn)
+			return
+		}
 		if pokerBoard.GameState == "waiting" {
 			pokerBoard.AddPlayer(board.Player{nil, false, conn, command_value, nil, 0, 500})
 			if pokerBoard.Length() > 2 {
@@ -161,7 +165,6 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			sendPokerMessage("Please wait till the current game is over", conn)
 			sendPokerMessage("Chandra is noob", conn)
 		}
-
 	case "check":
 		log.Println("Check")
 		if pokerBoard.CurrentPlayer.Conn == conn {
