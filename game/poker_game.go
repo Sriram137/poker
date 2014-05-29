@@ -2,11 +2,13 @@ package game
 
 import (
 	"github.com/elricL/poker/board"
+	"log"
 	"strconv"
 )
 
 func gameStart(pokerBoard *board.Board) {
 	pokerBoard.Shuffle()
+	pokerBoard.Dealer = pokerBoard.Dealer.Next_player
 	var i = pokerBoard.Dealer
 	var count = 0
 	for {
@@ -17,6 +19,7 @@ func gameStart(pokerBoard *board.Board) {
 		sendPokerMessage("Your postition "+strconv.Itoa(count), i.Conn)
 		i.Hand = []string{card1, card2}
 		i = i.Next_player
+		i.Folded = false
 		count++
 		if i == pokerBoard.Dealer {
 			break
@@ -39,7 +42,7 @@ func goFlopStuff(pokerBoard *board.Board) {
 	var card1 = pokerBoard.Deck.GetPokerCard()
 	var card2 = pokerBoard.Deck.GetPokerCard()
 	var card3 = pokerBoard.Deck.GetPokerCard()
-	pokerBoard.BoardCards=[]string{card1, card2, card3,"__","__"}
+	pokerBoard.BoardCards = []string{card1, card2, card3, "__", "__"}
 	for {
 		sendPokerMessage(card1, i.Conn)
 		sendPokerMessage(card2, i.Conn)
@@ -77,7 +80,7 @@ func goTurnStuff(pokerBoard *board.Board) {
 func goRiverStuff(pokerBoard *board.Board) {
 	var i = pokerBoard.Dealer
 	var card5 = pokerBoard.Deck.GetPokerCard()
-	pokerBoard.BoardCards[4]=card5
+	pokerBoard.BoardCards[4] = card5
 	for {
 		sendPokerMessage(card5, i.Conn)
 		i = i.Next_player
@@ -103,6 +106,25 @@ func findNextUnfoldedPlayer(pokerPlayer *board.Player) *board.Player {
 	}
 }
 
-func findGameWinner(pokerBoard *board.Board) {
+func findGameWinner(pokerBoard *board.Board) ([]*board.Player, int) {
+	winners := make([]*board.Player, 0)
+	starter := pokerBoard.Starter
+	if starter.FindNextUnfoldedPlayer() == starter {
+		starter.Money += pokerBoard.Pot
+		log.Println("WTF")
+		log.Println(starter)
+		log.Println(starter.FindNextUnfoldedPlayer())
+		winners := append(winners, starter)
+		amount := pokerBoard.Pot / len(winners)
+		log.Println(winners)
+		log.Println(amount)
+		return winners, amount
+	}
 
+	return winners, pokerBoard.Pot
+}
+
+func resetGame(pokerBoard *board.Board) {
+	pokerBoard.Deck.MakeShuffledCardPack()
+	gameStart(pokerBoard)
 }

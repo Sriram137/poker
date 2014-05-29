@@ -16,7 +16,7 @@ func (deck *Deck) MakeShuffledCardPack() {
 	deck.cardDeck = make([]string, 52)
 
 	var count = 0
-	for _, num := range "123456789TJKQ" {
+	for _, num := range "A23456789TJKQ" {
 		for _, s := range "DHSC" {
 			niceDeck[count] = string(num) + string(s)
 			count += 1
