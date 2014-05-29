@@ -17,7 +17,6 @@ type Player struct {
 	CurrentBet  int
 	Money       int
 }
-
 type Board struct {
 	Deck          cards.Deck
 	Dealer        *Player
