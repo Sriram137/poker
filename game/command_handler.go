@@ -39,6 +39,25 @@ func sendPokerMessage(msg string, conn *websocket.Conn) {
 	}
 }
 
+func getPlayerPositionsInPrintableFormat(pokerBoard *board.Board) string {
+	var currPlayer = pokerBoard.CurrentPlayer
+	var playerPosString string = ""
+	for {
+		playerPosString = playerPosString + currPlayer.Name + " "
+		if currPlayer.Folded == true {
+			playerPosString = playerPosString + "(f) "
+		}
+		playerPosString = playerPosString + strconv.Itoa(currPlayer.CurrentBet) + " "
+		if currPlayer.Next_player != pokerBoard.CurrentPlayer {
+			playerPosString = playerPosString + "-> "
+		}
+		currPlayer = currPlayer.Next_player
+		if currPlayer == pokerBoard.CurrentPlayer {
+			return playerPosString
+		}
+	}
+}
+
 func getCommand(stringMsg string) (string, string) {
 	splits := strings.Split(stringMsg, " ")
 	command := ""
@@ -236,16 +255,7 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			sendPokerMessage("Patience My friend. Let the Game begin", player.Conn)
 			return
 		}
-		var currPlayer = pokerBoard.CurrentPlayer
-		sendPokerMessage("Current Player is "+currPlayer.Name+" with bet "+strconv.Itoa(currPlayer.CurrentBet), player.Conn)
-		for {
-			currPlayer = currPlayer.FindNextUnfoldedPlayer()
-			if currPlayer == pokerBoard.CurrentPlayer {
-				break
-			}
-			sendPokerMessage("Next Player is "+currPlayer.Name+" with bet "+strconv.Itoa(currPlayer.CurrentBet), player.Conn)
-		}
-
+		sendPokerMessage(getPlayerPositionsInPrintableFormat(pokerBoard),conn)
 	}
 
 	log.Println(pokerBoard.GameState)

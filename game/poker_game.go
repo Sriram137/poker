@@ -34,6 +34,7 @@ func gameStart(pokerBoard *board.Board) {
 	pokerBoard.Pot = 30
 	pokerBoard.Starter = pokerBoard.Dealer.Next_player.Next_player.Next_player
 	pokerBoard.CurrentPlayer = pokerBoard.Starter
+	sendAll(pokerBoard, getPlayerPositionsInPrintableFormat(pokerBoard))
 
 }
 
