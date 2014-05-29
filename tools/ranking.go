@@ -1,42 +1,42 @@
 package tools
 
 func rank(cards []int) ([]int, []int) {
-	freqs := make([]int, 13)	
-	out1 := make([]int, 5)	
-	out2 := make([]int, 5)	
+	freqs := make([]int, 13)
+	out1 := make([]int, 5)
+	out2 := make([]int, 5)
 	i1 := 0
 	i2 := 0
-	for _,v := range cards {
+	for _, v := range cards {
 		freqs[12-v+2]++
 	}
-	for i,v := range freqs {
+	for i, v := range freqs {
 		if v == 4 {
-			out1[i1]=v
-			out2[i2]=14-i
+			out1[i1] = v
+			out2[i2] = 14 - i
 			i1++
 			i2++
 		}
 	}
-	for i,v := range freqs {
+	for i, v := range freqs {
 		if v == 3 {
-			out1[i1]=v
-			out2[i2]=14-i
+			out1[i1] = v
+			out2[i2] = 14 - i
 			i1++
 			i2++
 		}
 	}
-	for i,v := range freqs {
+	for i, v := range freqs {
 		if v == 2 {
-			out1[i1]=v
-			out2[i2]=14-i
+			out1[i1] = v
+			out2[i2] = 14 - i
 			i1++
 			i2++
 		}
 	}
-	for i,v := range freqs {
+	for i, v := range freqs {
 		if v == 1 {
-			out1[i1]=v
-			out2[i2]=14-i
+			out1[i1] = v
+			out2[i2] = 14 - i
 			i1++
 			i2++
 		}
@@ -48,7 +48,7 @@ func findRank(cards []int) ([]int, int) {
 	maxHand := make([]int, 5)
 	maxRank := 0
 	for i := 0; i < 6; i++ {
-		for j := i+1; j < 7; j++ {
+		for j := i + 1; j < 7; j++ {
 			temp1 := make([]int, i)
 			temp2 := make([]int, j-i-1)
 			temp3 := make([]int, 6-j)

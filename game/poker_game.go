@@ -39,7 +39,7 @@ func goFlopStuff(pokerBoard *board.Board) {
 	var card1 = pokerBoard.Deck.GetPokerCard()
 	var card2 = pokerBoard.Deck.GetPokerCard()
 	var card3 = pokerBoard.Deck.GetPokerCard()
-	pokerBoard.BoardCards=[]string{card1, card2, card3,"__","__"}
+	pokerBoard.BoardCards = []string{card1, card2, card3, "__", "__"}
 	for {
 		sendPokerMessage(card1, i.Conn)
 		sendPokerMessage(card2, i.Conn)
@@ -77,7 +77,7 @@ func goTurnStuff(pokerBoard *board.Board) {
 func goRiverStuff(pokerBoard *board.Board) {
 	var i = pokerBoard.Dealer
 	var card5 = pokerBoard.Deck.GetPokerCard()
-	pokerBoard.BoardCards[4]=card5
+	pokerBoard.BoardCards[4] = card5
 	for {
 		sendPokerMessage(card5, i.Conn)
 		i = i.Next_player
@@ -103,6 +103,14 @@ func findNextUnfoldedPlayer(pokerPlayer *board.Player) *board.Player {
 	}
 }
 
-func findGameWinner(pokerBoard *board.Board) {
+func findGameWinner(pokerBoard *board.Board) (winners []*board.Player, amount int) {
+	winners = make([]*board.Player, 1)
+	starter := pokerBoard.Starter
+	if starter.FindNextUnfoldedPlayer() == starter {
+		starter.Money += board.Pot
+		return append(winners, starter), (board.Pot / len(winners))
+	}
 
+	board.Pot = 0
+	return
 }
