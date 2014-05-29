@@ -250,6 +250,8 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 	case "pot":
 		log.Println("pot")
 		sendPokerMessage("The current pot is "+strconv.Itoa(pokerBoard.Pot), conn)
+	default:
+		sendPokerMessage("Go to https://github.com/elricL/poker/blob/master/README.md for usage instructions", conn)
 	}
 
 	log.Println(pokerBoard.GameState)
