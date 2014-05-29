@@ -47,7 +47,7 @@ func getPlayerPositionsInPrintableFormat(pokerBoard *board.Board) string {
 		if currPlayer.Folded == true {
 			playerPosString = playerPosString + "(f) "
 		}
-		playerPosString = playerPosString + "bet: "+ strconv.Itoa(currPlayer.CurrentBet) + " money: " + strconv.Itoa(currPlayer.Money) + " "
+		playerPosString = playerPosString + "bet : "+ strconv.Itoa(currPlayer.CurrentBet) + " money : " + strconv.Itoa(currPlayer.Money) + " "
 		if currPlayer.Next_player != pokerBoard.CurrentPlayer {
 			playerPosString = playerPosString + "-> "
 		}
@@ -256,6 +256,9 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			return
 		}
 		sendPokerMessage(getPlayerPositionsInPrintableFormat(pokerBoard), conn)
+	case "pot":
+		log.Println("pot")
+		sendPokerMessage("The current pot is "+ strconv.Itoa(pokerBoard.Pot), conn)
 	}
 
 	log.Println(pokerBoard.GameState)
