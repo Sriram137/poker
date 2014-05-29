@@ -20,13 +20,16 @@ func sendAll(pokerBoard *board.Board, msg string) {
 }
 
 func getRequestingPlayer(pokerBoard *board.Board, conn *websocket.Conn) *board.Player{
-		var player=pokerBoard.Dealer;
+		var player = pokerBoard.Dealer;
 		for {
-			if(player.Conn==conn){
+			if(player.Conn == conn){
 				log.Println("identified "+player.Name)
 				return player
 			}
-			player= player.Next_player
+			player = player.Next_player
+			if player == pokerBoard.Dealer {
+				return nil
+			} 
 		}
 }
 
@@ -72,6 +75,10 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 	case "join":
 		if pokerBoard.Length () == 0 {
 			pokerBoard.BoardCards = [] string{"__","__","__","__","__"}
+		}
+		if (pokerBoard.Length() > 0 && getRequestingPlayer(pokerBoard,conn) != nil) {
+			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!",conn)
+			return
 		}
 		if pokerBoard.GameState == "waiting" {
 			pokerBoard.AddPlayer(board.Player{nil, false, conn, command_value, nil, 0, 500})
