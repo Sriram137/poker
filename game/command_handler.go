@@ -19,18 +19,18 @@ func sendAll(pokerBoard *board.Board, msg string) {
 	}
 }
 
-func getRequestingPlayer(pokerBoard *board.Board, conn *websocket.Conn) *board.Player{
-	var player = pokerBoard.Dealer;
+func getRequestingPlayer(pokerBoard *board.Board, conn *websocket.Conn) *board.Player {
+	var player = pokerBoard.Dealer
 	for {
-		if(player.Conn == conn){
-			log.Println("identified "+player.Name)
+		if player.Conn == conn {
+			log.Println("identified " + player.Name)
 			return player
 		}
 		player = player.Next_player
 		if player == pokerBoard.Dealer {
 			return nil
 		}
-	}	 
+	}
 }
 
 func sendPokerMessage(msg string, conn *websocket.Conn) {
@@ -118,8 +118,8 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!", conn)
 			return
 		}
-		if (pokerBoard.Length() > 0 && getRequestingPlayer(pokerBoard,conn) != nil) {
-			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!",conn)
+		if pokerBoard.Length() > 0 && getRequestingPlayer(pokerBoard, conn) != nil {
+			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!", conn)
 			return
 		}
 		if pokerBoard.GameState == "waiting" {
@@ -255,7 +255,7 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			sendPokerMessage("Patience My friend. Let the Game begin", player.Conn)
 			return
 		}
-		sendPokerMessage(getPlayerPositionsInPrintableFormat(pokerBoard),conn)
+		sendPokerMessage(getPlayerPositionsInPrintableFormat(pokerBoard), conn)
 	}
 
 	log.Println(pokerBoard.GameState)
