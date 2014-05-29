@@ -47,7 +47,7 @@ func getPlayerPositionsInPrintableFormat(pokerBoard *board.Board) string {
 		if currPlayer.Folded == true {
 			playerPosString = playerPosString + "(f) "
 		}
-		playerPosString = playerPosString + strconv.Itoa(currPlayer.CurrentBet) + " "
+		playerPosString = playerPosString + "bet: "+ strconv.Itoa(currPlayer.CurrentBet) + " money: " + strconv.Itoa(currPlayer.Money) + " "
 		if currPlayer.Next_player != pokerBoard.CurrentPlayer {
 			playerPosString = playerPosString + "-> "
 		}
