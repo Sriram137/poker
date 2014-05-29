@@ -43,3 +43,29 @@ func rank(cards []int) ([]int, []int) {
 	}
 	return out1, out2
 }
+
+func findRank(cards []int) ([]int, int) {
+	maxHand := make([]int, 5)
+	maxRank := 0
+	for i := 0; i < 6; i++ {
+		for j := i+1; j < 7; j++ {
+			temp1 := make([]int, i)
+			temp2 := make([]int, j-i-1)
+			temp3 := make([]int, 6-j)
+			copy(temp1, cards[:i])
+			copy(temp2, cards[i+1:j])
+			copy(temp3, cards[j+1:])
+			curHand := append(append(temp1, temp2...), temp3...)
+			curRank := dummy(curHand)
+			if curRank > maxRank {
+				maxRank = curRank
+				maxHand = curHand
+			}
+		}
+	}
+	return maxHand, maxRank
+}
+
+func dummy(cards []int) int {
+	return cards[4]
+}
