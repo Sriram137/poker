@@ -1,6 +1,7 @@
 package ranking
 
 import (
+	"github.com/elricL/poker/board"
 	"sort"
 )
 
@@ -139,6 +140,31 @@ func count(r int, ranks [5]int) (int) {
 		}
 	}
 	return count
+}
+
+func findWinners(pokerBoard *board.Board) []*board.Player {
+	var winnners []*board.Player
+	bestHand := make([]int, 10)
+	firstPlayer := pokerBoard.Dealer
+	curPlayer := firstPlayer
+	for {
+		if curPlayer.Folded {
+			continue
+		}
+		curHand := findBestHand(append(curPlayer.Hand, pokerBoard.BoardCards...))	
+		if compareHands(curHand, bestHand) > 0 {
+			bestHand = curHand
+			winners	:= make([]*board.Player, 0)
+			append(winners, curPlayer)
+		} else if compareHands(curHand, bestHand) == 0 {
+			append(winners, curPlayer)
+		}
+		curPlayer = curPlayer.Next_player
+		if curPlayer == firstPlayer {
+			break
+		}
+	}	
+	return winners
 }
 
 func findBestHand(cards []int) []int {
