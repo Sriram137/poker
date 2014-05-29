@@ -19,18 +19,18 @@ func sendAll(pokerBoard *board.Board, msg string) {
 	}
 }
 
-func getRequestingPlayer(pokerBoard *board.Board, conn *websocket.Conn) *board.Player{
-		var player = pokerBoard.Dealer;
-		for {
-			if(player.Conn == conn){
-				log.Println("identified "+player.Name)
-				return player
-			}
-			player = player.Next_player
-			if player == pokerBoard.Dealer {
-				return nil
-			} 
+func getRequestingPlayer(pokerBoard *board.Board, conn *websocket.Conn) *board.Player {
+	var player = pokerBoard.Dealer
+	for {
+		if player.Conn == conn {
+			log.Println("identified " + player.Name)
+			return player
 		}
+		player = player.Next_player
+		if player == pokerBoard.Dealer {
+			return nil
+		}
+	}
 }
 
 func sendPokerMessage(msg string, conn *websocket.Conn) {
@@ -38,8 +38,6 @@ func sendPokerMessage(msg string, conn *websocket.Conn) {
 		log.Println("EERROEROERO WHile sending message")
 	}
 }
-
-
 
 func getCommand(stringMsg string) (string, string) {
 	splits := strings.Split(stringMsg, " ")
@@ -73,11 +71,11 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		log.Println(pokerBoard)
 		pokerBoard.Print()
 	case "join":
-		if pokerBoard.Length () == 0 {
-			pokerBoard.BoardCards = [] string{"__","__","__","__","__"}
+		if pokerBoard.Length() == 0 {
+			pokerBoard.BoardCards = []string{"__", "__", "__", "__", "__"}
 		}
-		if (pokerBoard.Length() > 0 && getRequestingPlayer(pokerBoard,conn) != nil) {
-			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!",conn)
+		if pokerBoard.Length() > 0 && getRequestingPlayer(pokerBoard, conn) != nil {
+			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!", conn)
 			return
 		}
 		if pokerBoard.GameState == "waiting" {
@@ -168,6 +166,9 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		if pokerBoard.CurrentPlayer.Conn == conn {
 			pokerBoard.CurrentPlayer.Folded = true
 			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" Folded.")
+			if pokerBoard.CurrentPlayer == pokerBoard.Starter {
+				pokerBoard.Starter = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
+			}
 			nextPlayer := pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
 			if nextPlayer.FindNextUnfoldedPlayer() == nextPlayer {
 				log.Println("Winner Winner Chicken Dinner")
@@ -179,47 +180,47 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		} else {
 			sendPokerMessage("Out of turn", conn)
 		}
-	
+
 	case "me":
 		log.Println("me")
-		var player = getRequestingPlayer(pokerBoard,conn)
-		sendPokerMessage(player.PlayerInfo(),player.Conn)
-			
+		var player = getRequestingPlayer(pokerBoard, conn)
+		sendPokerMessage(player.PlayerInfo(), player.Conn)
+
 	case "board":
 		log.Println("board")
-		sendPokerMessage(pokerBoard.PrintCards(),getRequestingPlayer(pokerBoard,conn).Conn)
+		sendPokerMessage(pokerBoard.PrintCards(), getRequestingPlayer(pokerBoard, conn).Conn)
 
 	case "who":
 		log.Println("who")
-		var player = getRequestingPlayer(pokerBoard,conn)
+		var player = getRequestingPlayer(pokerBoard, conn)
 		if pokerBoard.GameState == "waiting" {
-			sendPokerMessage("Patience My friend. Let the Game begin",player.Conn)
+			sendPokerMessage("Patience My friend. Let the Game begin", player.Conn)
 		} else {
 			if player == pokerBoard.CurrentPlayer {
-				sendPokerMessage("Confused eh!!. Its YOUR turn",player.Conn)
+				sendPokerMessage("Confused eh!!. Its YOUR turn", player.Conn)
 			} else {
-				sendPokerMessage(pokerBoard.CurrentPlayer.Name+ "'s turn",player.Conn)
+				sendPokerMessage(pokerBoard.CurrentPlayer.Name+"'s turn", player.Conn)
 			}
 		}
 	case "players":
 		//TODO EdgeCases need to be checked ,Sriram
 		log.Println("players")
-		var player= getRequestingPlayer(pokerBoard,conn)
-		if pokerBoard.GameState == "waiting"{
-			sendPokerMessage("Patience My friend. Let the Game begin",player.Conn)
+		var player = getRequestingPlayer(pokerBoard, conn)
+		if pokerBoard.GameState == "waiting" {
+			sendPokerMessage("Patience My friend. Let the Game begin", player.Conn)
 			return
 		}
-		var currPlayer=pokerBoard.CurrentPlayer
-		sendPokerMessage("Current Player is "+currPlayer.Name+ " with bet "+strconv.Itoa(currPlayer.CurrentBet),player.Conn)
+		var currPlayer = pokerBoard.CurrentPlayer
+		sendPokerMessage("Current Player is "+currPlayer.Name+" with bet "+strconv.Itoa(currPlayer.CurrentBet), player.Conn)
 		for {
-			currPlayer=currPlayer.FindNextUnfoldedPlayer()
+			currPlayer = currPlayer.FindNextUnfoldedPlayer()
 			if currPlayer == pokerBoard.CurrentPlayer {
-				break;
+				break
 			}
-			sendPokerMessage("Next Player is "+currPlayer.Name+ " with bet "+strconv.Itoa(currPlayer.CurrentBet),player.Conn)
+			sendPokerMessage("Next Player is "+currPlayer.Name+" with bet "+strconv.Itoa(currPlayer.CurrentBet), player.Conn)
 		}
 
-	}	
+	}
 
 	log.Println(pokerBoard.GameState)
 	log.Println()
