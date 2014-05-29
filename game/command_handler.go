@@ -59,6 +59,14 @@ func getCommand(stringMsg string) (string, string) {
 		command = "check"
 	case "r":
 		command = "raise"
+	case "b":
+		command = "board"
+	case "p":
+		command = "pot"
+	case "ls":
+		command = "players"
+	case "w":
+		command = "who"
 	}
 	return command, value
 }

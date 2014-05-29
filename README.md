@@ -23,7 +23,8 @@ Connect using
     r <amount> or raise <amount>
 
 ## Utility Commands
-    players -> List of players ,position and bets
-    board -> Cards open on board
-    me -> My cards, bet and balance
-    who -> Whose turn to play 
+    ls or players -> List of players ,position and bets
+    b or board    -> Cards open on board
+    me            -> My cards, bet and balance
+    w or who      -> Whose turn to play 
+    p or pot      -> How much is in pot
