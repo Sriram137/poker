@@ -8,6 +8,7 @@ import (
 )
 
 func gameStart(pokerBoard *board.Board) {
+	pokerBoard.BoardCards = []string{"__", "__", "__", "__", "__"}
 	pokerBoard.Shuffle()
 	pokerBoard.Dealer = pokerBoard.Dealer.Next_player
 	var i = pokerBoard.Dealer

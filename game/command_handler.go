@@ -144,10 +144,6 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!", conn)
 			return
 		}
-		if pokerBoard.Length() > 0 && getRequestingPlayer(pokerBoard, conn) != nil {
-			sendPokerMessage("We know you are over enthusiastic about Poker.But only one instance of you can join a table!!", conn)
-			return
-		}
 		if command_value == "" {
 			sendPokerMessage("Enter a name", conn)
 			return
