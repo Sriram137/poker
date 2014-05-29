@@ -47,7 +47,7 @@ func getPlayerPositionsInPrintableFormat(pokerBoard *board.Board) string {
 		if currPlayer.Folded == true {
 			playerPosString = playerPosString + "(f) "
 		}
-		playerPosString = playerPosString + "bet : "+ strconv.Itoa(currPlayer.CurrentBet) + " money : " + strconv.Itoa(currPlayer.Money) + " "
+		playerPosString = playerPosString + "bet : " + strconv.Itoa(currPlayer.CurrentBet) + " money : " + strconv.Itoa(currPlayer.Money) + " "
 		if currPlayer.Next_player != pokerBoard.CurrentPlayer {
 			playerPosString = playerPosString + "-> "
 		}
@@ -103,6 +103,29 @@ func finishGame(pokerBoard *board.Board) {
 	resetGame(pokerBoard)
 }
 
+func goNextState(pokerBoard *board.Board) {
+	if pokerBoard.CurrentPlayer == pokerBoard.Starter {
+		switch pokerBoard.GameState {
+		case "preFlop":
+			sendAll(pokerBoard, "Commencing FLOP")
+			pokerBoard.GameState = "flop"
+			goFlopStuff(pokerBoard)
+		case "afterFlop":
+			sendAll(pokerBoard, "Commencing TURN")
+			pokerBoard.GameState = "afterTurn"
+			goTurnStuff(pokerBoard)
+		case "afterTurn":
+			sendAll(pokerBoard, "Commencing RIVER")
+			pokerBoard.GameState = "afterRiver"
+			goRiverStuff(pokerBoard)
+		case "afterRiver":
+			sendAll(pokerBoard, "Game Over")
+			pokerBoard.GameState = "gameOver"
+			finishGame(pokerBoard)
+		}
+	}
+}
+
 func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Conn) {
 	var stringMsg = string(msg)
 	command, command_value := getCommand(stringMsg)
@@ -141,10 +164,6 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 
 	case "check":
 		log.Println("Check")
-		log.Println(pokerBoard)
-		log.Println(pokerBoard.CurrentPlayer)
-		log.Println(pokerBoard.CurrentPlayer.Next_player)
-		log.Println(pokerBoard.CurrentPlayer.Next_player.Next_player)
 		if pokerBoard.CurrentPlayer.Conn == conn {
 			var moneyToCheck = (pokerBoard.CurrentBet - pokerBoard.CurrentPlayer.CurrentBet)
 			pokerBoard.CurrentPlayer.Money = pokerBoard.CurrentPlayer.Money - moneyToCheck
@@ -153,40 +172,14 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			bet := strconv.Itoa(pokerBoard.CurrentBet)
 			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" puts in "+strconv.Itoa(moneyToCheck)+" calls "+bet)
 			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
-			if pokerBoard.CurrentPlayer == pokerBoard.Starter {
-				switch pokerBoard.GameState {
-				case "preFlop":
-					sendAll(pokerBoard, "Commencing FLOP")
-					pokerBoard.GameState = "flop"
-					goFlopStuff(pokerBoard)
-				case "afterFlop":
-					sendAll(pokerBoard, "Commencing TURN")
-					pokerBoard.GameState = "afterTurn"
-					goTurnStuff(pokerBoard)
-				case "afterTurn":
-					sendAll(pokerBoard, "Commencing RIVER")
-					pokerBoard.GameState = "afterRiver"
-					goRiverStuff(pokerBoard)
-				case "afterRiver":
-					sendAll(pokerBoard, "Game Over")
-					pokerBoard.GameState = "gameOver"
-					finishGame(pokerBoard)
-				}
-			}
+			goNextState(pokerBoard)
 			sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
 			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+"'s Turn")
 		} else {
 			sendPokerMessage("Out of Turn", conn)
 		}
-		log.Println(pokerBoard.CurrentPlayer)
-		log.Println(pokerBoard.CurrentPlayer.Next_player)
-		log.Println(pokerBoard.CurrentPlayer.Next_player.Next_player)
 	case "raise":
 		log.Println("Raise")
-		log.Println(pokerBoard)
-		log.Println(pokerBoard.CurrentPlayer)
-		log.Println(pokerBoard.CurrentPlayer.Next_player)
-		log.Println(pokerBoard.CurrentPlayer.Next_player.Next_player)
 		if pokerBoard.CurrentPlayer.Conn == conn {
 			raiseAmount, _ := strconv.Atoi(command_value)
 			difference := (raiseAmount - pokerBoard.CurrentPlayer.CurrentBet)
@@ -201,13 +194,8 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		} else {
 			sendPokerMessage("Out of turn", conn)
 		}
-		log.Println(pokerBoard.CurrentPlayer)
-		log.Println(pokerBoard.CurrentPlayer.Next_player)
-		log.Println(pokerBoard.CurrentPlayer.Next_player.Next_player)
 	case "fold":
 		log.Println("Fold")
-		log.Println(pokerBoard)
-		log.Println(pokerBoard.CurrentPlayer)
 		if pokerBoard.CurrentPlayer.Conn == conn {
 			pokerBoard.CurrentPlayer.Folded = true
 			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" Folded.")
@@ -220,6 +208,7 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 				finishGame(pokerBoard)
 			} else {
 				pokerBoard.CurrentPlayer = nextPlayer
+				goNextState(pokerBoard)
 				sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
 			}
 		} else {
@@ -258,7 +247,7 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		sendPokerMessage(getPlayerPositionsInPrintableFormat(pokerBoard), conn)
 	case "pot":
 		log.Println("pot")
-		sendPokerMessage("The current pot is "+ strconv.Itoa(pokerBoard.Pot), conn)
+		sendPokerMessage("The current pot is "+strconv.Itoa(pokerBoard.Pot), conn)
 	}
 
 	log.Println(pokerBoard.GameState)
