@@ -4,7 +4,7 @@ import (
 	"github.com/elricL/poker/board"
 	"github.com/elricL/poker/ranking"
 	"log"
-	"strconv"	
+	"strconv"
 )
 
 func gameStart(pokerBoard *board.Board) {
@@ -122,11 +122,12 @@ func findGameWinner(pokerBoard *board.Board) ([]*board.Player, int) {
 		log.Println(amount)
 		return winners, amount
 	}
-
-	winners = ranking.findWinners(pokerBoard *board.Board)
+	winners = ranking.FindWinners(pokerBoard)
 	amount := pokerBoard.Pot / len(winners)
-
-	return winners, pokerBoard.Pot
+	for _, winner := range winners {
+		winner.Money += amount
+	}
+	return winners, amount
 }
 
 func resetGame(pokerBoard *board.Board) {
