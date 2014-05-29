@@ -26,4 +26,6 @@ Connect using
     players -> List of players ,position and bets
     board -> Cards open on board
     me -> My cards, bet and balance
-    who -> Whose turn to play 
+    who -> Whose turn to play
+##TODO
+   pot implementation 
