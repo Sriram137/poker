@@ -39,6 +39,9 @@ func sendPokerMessage(msg string, conn *websocket.Conn) {
 	}
 }
 
+func getHelpString() string {
+	return "List of Valid Commands\n------------------------------------\nj, join \t\t\t\t join the table\nf, fold \t\t\t\t fold\nc, check \t\t\t\t check/call\nr <amount>, raise <amount> \t\t raise by amount\nboard \t\t\t\t\t display the cards on the board\npot \t\t\t\t\t display current amount in pot\nls, players \t\t\t\t displays current orientation of players on table\nw,who \t\t\t\t\t displays whose turn is it\nme \t\t\t\t\t displays your state, hand, money and bet\nh, help \t\t\t\t displays all commads and their usages"
+}
 func getPlayerPositionsInPrintableFormat(pokerBoard *board.Board) string {
 	var currPlayer = pokerBoard.CurrentPlayer
 	var playerPosString string = ""
@@ -89,6 +92,8 @@ func getCommand(stringMsg string) (string, string) {
 		command = "players"
 	case "w":
 		command = "who"
+	case "h":
+		command = "help"
 	}
 	return command, value
 }
@@ -254,8 +259,11 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 	case "pot":
 		log.Println("pot")
 		sendPokerMessage("The current pot is "+strconv.Itoa(pokerBoard.Pot), conn)
+	case "help":
+		log.Println("help")
+		sendPokerMessage(getHelpString(), conn)
 	default:
-		sendPokerMessage("Go to https://github.com/elricL/poker/blob/master/README.md for usage instructions", conn)
+		sendPokerMessage("Inavlid Command Entered\n"+getHelpString(), conn)
 	}
 
 	log.Println(pokerBoard.GameState)
