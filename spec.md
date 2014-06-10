@@ -1,36 +1,40 @@
-You'll be prompted with messages "Your Turn" when its your turn
+####You'll be prompted with messages *Your Turn* when its your turn
 
 join with 
 j <name>
-On any player join:
-Server returns:
-    2 messages.
-        1st Message -> <name> joined.
-        2nd Message -> Waiting for <3 - number of players> more players.
+######On any player join:
+------------------
+#######Server returns:
+    ####2 messages.
+        * 1st Message -> <name> joined.
+        * 2nd Message -> Waiting for <3 - number of players> more players.
     if number of players > 2:
     Server returns:
         6 messages.
-            1st Message -> Starting game with <number of players> players.
-            2nd Message -> Commencing PREFLOP
-            3rd Message -> 1st card
-            4th Message -> 2nd card
-            5th Message -> Your Position <your position>
-            6th Message -> Player list in format. ***2 bet:0money :500 -> 3 bet:10money :490 -> 1 bet:20money :480
+            * 1st Message -> Starting game with <number of players> players.
+            * 2nd Message -> Commencing PREFLOP
+            * 3rd Message -> 1st card
+            * 4th Message -> 2nd card
+            * 5th Message -> Your Position <your position>
+            * 6th Message -> Player list in format. ***2 bet:0money :500 -> 3 bet:10money :490 -> 1 bet:20money :480
 
-When someone checks:
-Server returns:
+######When someone checks:
+------------------
+#######Server returns:
     2 messages.
         1st Message -> <name> puts in <amount> to call <current_bet>
         2nd Message -> <name>'s Turn
 
-When someone folds:
-Server returns:
+######When someone folds:
+------------------
+#######Server returns:
     2 messages.
         1st Message -> <name> folded
         2nd Message -> <name>'s Turn
 
-When Flop starts:
-Server returns:
+######When Flop starts:
+------------------
+#######Server returns:
     5 messages.
         1st Message -> Commencing FLOP
         2nd Message -> Card
@@ -38,19 +42,25 @@ Server returns:
         4th Message -> Card
         5th Message -> <name>'s Turn
 
-When Turn starts:
+######When Turn starts:
+------------------
+#######Server returns:
     3 messages.
         1st Message -> Commencing TURN
         2nd Message -> Card
         3rd Message -> <name>'s Turn
 
-When River starts:
+######When River starts:
+------------------
+#######Server returns:
     3 messages.
         1st Message -> Commencing RIVER
         2nd Message -> Card
         3rd Message -> <name>'s Turn
 
-When Game Over:
+######When Game Over:
+------------------
+#######Server returns:
     3 Actions.
         1 message.
             1st Message -> Game Over
