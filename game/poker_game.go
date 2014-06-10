@@ -8,6 +8,7 @@ import (
 )
 
 func gameStart(pokerBoard *board.Board) {
+	sendAll(pokerBoard, "Commencing PREFLOP")
 	pokerBoard.BoardCards = []string{"__", "__", "__", "__", "__"}
 	pokerBoard.Shuffle()
 	pokerBoard.Dealer = pokerBoard.Dealer.Next_player

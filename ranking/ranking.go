@@ -152,12 +152,10 @@ func FindWinners(pokerBoard *board.Board) []*board.Player {
 	for i := 0; i < 10; i++ {
 		bestHand[i] = 0
 	}
-	firstPlayer := pokerBoard.Dealer
+	firstPlayer := pokerBoard.Dealer.FindNextUnfoldedPlayer()
 	curPlayer := firstPlayer
+
 	for {
-		if curPlayer.Folded {
-			continue
-		}
 		curHand := findBestHand(append(curPlayer.Hand, pokerBoard.BoardCards...))
 
 		log.Println(curHand)
@@ -172,7 +170,7 @@ func FindWinners(pokerBoard *board.Board) []*board.Player {
 			log.Println("HELLO2")
 			winners = append(winners, curPlayer)
 		}
-		curPlayer = curPlayer.Next_player
+		curPlayer = curPlayer.FindNextUnfoldedPlayer()
 		if curPlayer == firstPlayer {
 			break
 		}
