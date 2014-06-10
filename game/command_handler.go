@@ -184,8 +184,8 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" puts in "+strconv.Itoa(moneyToCheck)+" calls "+bet)
 			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
 			goNextState(pokerBoard)
-			sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
 			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+"'s Turn")
+			sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
 		} else {
 			sendPokerMessage("Out of Turn", conn)
 		}
@@ -201,6 +201,7 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 			pokerBoard.CurrentBet = raiseAmount
 			pokerBoard.Pot += difference
 			pokerBoard.CurrentPlayer = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
+			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+"'s Turn")
 			sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
 		} else {
 			sendPokerMessage("Out of turn", conn)
@@ -210,22 +211,24 @@ func HandlePokerMessage(msg []byte, pokerBoard *board.Board, conn *websocket.Con
 		if pokerBoard.CurrentPlayer.Conn == conn {
 			pokerBoard.CurrentPlayer.Folded = true
 			sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+" Folded.")
-			if pokerBoard.CurrentPlayer == pokerBoard.Starter {
-				pokerBoard.Starter = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
-			}
 			nextPlayer := pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
 			if nextPlayer.FindNextUnfoldedPlayer() == nextPlayer {
 				log.Println("Winner Winner Chicken Dinner")
 				finishGame(pokerBoard)
 			} else {
+				if pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer() == pokerBoard.Starter {
+					goNextState(pokerBoard)
+				}
+				if pokerBoard.CurrentPlayer == pokerBoard.Starter {
+					pokerBoard.Starter = pokerBoard.CurrentPlayer.FindNextUnfoldedPlayer()
+				}
 				pokerBoard.CurrentPlayer = nextPlayer
-				goNextState(pokerBoard)
+				sendAll(pokerBoard, pokerBoard.CurrentPlayer.Name+"'s Turn")
 				sendPokerMessage("Your Turn", pokerBoard.CurrentPlayer.Conn)
 			}
 		} else {
 			sendPokerMessage("Out of turn", conn)
 		}
-
 	case "me":
 		log.Println("me")
 		var player = getRequestingPlayer(pokerBoard, conn)

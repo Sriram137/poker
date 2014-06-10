@@ -94,7 +94,9 @@ func straight(ranks []int) bool {
 	}
 }
 
-func two_pairs(ranks []int) (int, int) {
+func two_pairs(ranks_orig []int) (int, int) {
+	ranks := make([]int, 10)
+	copy(ranks, ranks_orig)
 	pair := kind(2, ranks)
 	sort.Sort(sort.IntSlice(ranks[0:5]))
 	lowpair := kind(2, ranks)

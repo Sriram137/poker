@@ -133,5 +133,15 @@ func findGameWinner(pokerBoard *board.Board) ([]*board.Player, int) {
 
 func resetGame(pokerBoard *board.Board) {
 	pokerBoard.Deck.MakeShuffledCardPack()
+	pokerBoard.CurrentBet = 0
+	pokerBoard.Pot = 0
+	var i = pokerBoard.Dealer
+	for {
+		i.CurrentBet = 0
+		i.Folded = false
+		if i == pokerBoard.Dealer {
+			break
+		}
+	}
 	gameStart(pokerBoard)
 }
