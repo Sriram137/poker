@@ -1,7 +1,10 @@
 ####You'll be prompted with messages *Your Turn* when its your turn
 
-join with 
-j <name>
+join with:
+
+j *name*
+
+
 ######On any player join:
 ------------------
 #######Server returns:
